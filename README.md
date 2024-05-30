@@ -82,5 +82,5 @@ Apache License 2.0
 
 ## 致谢
 
-本项目是在[wulijun/php-ext-trie-filter](https://github.com/wulijun/php-ext-trie-filter)的基础上改写的。
+本项目是在[wulijun/php-ext-trie-filter](https://github.com/wulijun/php-ext-trie-filter)的基础上改写的。  
 本项目是在[用于检测敏感词的 PHP 扩展](http://blog.anbutu.com/php/php-ext-trie-filter)的基础上改写的。
