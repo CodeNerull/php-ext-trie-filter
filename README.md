@@ -1,4 +1,4 @@
-原代码在php8上编译不通过。本人不会c扩展，根据错误代码在网上查询进行修改。不保障全部功能正式，且不进行维护～
+原代码在php8上编译不通过。本人不会c扩展，根据错误代码在网上查询进行修改。不保障全部功能正常,且不进行维护～
 ======================================
 php-ext-trie-filter
 ===================
@@ -82,5 +82,5 @@ Apache License 2.0
 
 ## 致谢
 
+本项目是在[wulijun/php-ext-trie-filter](https://github.com/wulijun/php-ext-trie-filter)的基础上改写的。
 本项目是在[用于检测敏感词的 PHP 扩展](http://blog.anbutu.com/php/php-ext-trie-filter)的基础上改写的。
-
