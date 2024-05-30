@@ -32,21 +32,64 @@
 /* True global resources - no need for thread safety here */
 static int le_trie_filter;
 
+/* 声明函数的参数类型 */  
+ZEND_BEGIN_ARG_INFO_EX(arginfo_trie_filter_load, 0, 0, 1)  
+    ZEND_ARG_INFO(0, filter_name)  
+ZEND_END_ARG_INFO()
+  
+ZEND_BEGIN_ARG_INFO_EX(arginfo_trie_filter_read, 0, 0, 1)  
+    ZEND_ARG_INFO(0, filter_id)  
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_trie_filter_search, 0, 0, 1)  
+    ZEND_ARG_INFO(0, filter_id)  
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_trie_filter_search_all, 0, 0, 1)  
+    ZEND_ARG_INFO(0, filter_id)  
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_trie_filter_new, 0, 0, 1)  
+    ZEND_ARG_INFO(0, filter_id)  
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_trie_filter_store, 0, 0, 1)  
+    ZEND_ARG_INFO(0, filter_id)  
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_trie_filter_delete, 0, 0, 1)  
+    ZEND_ARG_INFO(0, filter_id)  
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_trie_filter_save, 0, 0, 1)  
+    ZEND_ARG_INFO(0, filter_id)  
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_trie_filter_write, 0, 0, 1)  
+    ZEND_ARG_INFO(0, filter_id)  
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_trie_filter_free, 0, 0, 1)  
+    ZEND_ARG_INFO(0, filter_id)  
+ZEND_END_ARG_INFO()
+  
+/* ... 为其他函数声明类似的参数信息 ... */  
+
 /* {{{ trie_filter_functions[]
  *
  * Every user visible function must have an entry in trie_filter_functions[].
  */
 zend_function_entry trie_filter_functions[] = {
-    PHP_FE(trie_filter_load, NULL)
-    PHP_FE(trie_filter_read, NULL)
-    PHP_FE(trie_filter_search, NULL)
-    PHP_FE(trie_filter_search_all, NULL)
-    PHP_FE(trie_filter_new, NULL)
-    PHP_FE(trie_filter_store, NULL)
-    PHP_FE(trie_filter_delete, NULL)
-    PHP_FE(trie_filter_save, NULL)
-    PHP_FE(trie_filter_write, NULL)
-    PHP_FE(trie_filter_free, NULL)
+    PHP_FE(trie_filter_load, arginfo_trie_filter_load)
+    PHP_FE(trie_filter_read, arginfo_trie_filter_read)
+    PHP_FE(trie_filter_search, arginfo_trie_filter_search)
+    PHP_FE(trie_filter_search_all, arginfo_trie_filter_search_all)
+    PHP_FE(trie_filter_new, arginfo_trie_filter_new)
+    PHP_FE(trie_filter_store, arginfo_trie_filter_store)
+    PHP_FE(trie_filter_delete, arginfo_trie_filter_delete)
+    PHP_FE(trie_filter_save, arginfo_trie_filter_save)
+    PHP_FE(trie_filter_write, arginfo_trie_filter_write)
+    PHP_FE(trie_filter_free, arginfo_trie_filter_free)
     {NULL, NULL, NULL} /* Must be the last line in trie_filter_functions[] */
 };
 /* }}} */
@@ -86,7 +129,7 @@ PHP_INI_END()
 #if PHP_MAJOR_VERSION < 7
 static void php_trie_filter_dtor(zend_rsrc_list_entry *rsrc TSRMLS_DC)
 #else
-static void php_trie_filter_dtor(zend_resource *rsrc TSRMLS_DC)
+static void php_trie_filter_dtor(zend_resource *rsrc )
 #endif
 {
     Trie *trie = (Trie *)rsrc->ptr;
@@ -130,13 +173,13 @@ PHP_FUNCTION(trie_filter_load)
     char *path;
     zend_size_t path_len;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &path, &path_len) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() , "s", &path, &path_len) == FAILURE) {
         RETURN_NULL();
     }
 
     trie = trie_new_from_file(path);
     if (!trie) {
-        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to load %s", path);
+        php_error_docref(NULL , E_WARNING, "Unable to load %s", path);
         RETURN_NULL();
     }
     TRIE_ZEND_REGISTER_RESOURCE(return_value, trie, le_trie_filter);
@@ -152,7 +195,7 @@ PHP_FUNCTION(trie_filter_read)
     zend_size_t path_len;
     FILE *fp;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &path, &path_len) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() , "s", &path, &path_len) == FAILURE) {
         RETURN_NULL();
     }
 
@@ -161,7 +204,7 @@ PHP_FUNCTION(trie_filter_read)
     fclose(fp);
 
     if (!trie) {
-        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unable to read");
+        php_error_docref(NULL , E_WARNING, "Unable to read");
         RETURN_NULL();
     }
     TRIE_ZEND_REGISTER_RESOURCE(return_value, trie, le_trie_filter);
@@ -274,13 +317,13 @@ PHP_FUNCTION(trie_filter_search)
 
     AlphaChar *alpha_text;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs", &trie_resource, &text, &text_len) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() , "rs", &trie_resource, &text, &text_len) == FAILURE) {
         RETURN_FALSE;
     }
 
     array_init(return_value);
     if (text_len < 1 || strlen(text) != text_len) {
-        php_error_docref(NULL TSRMLS_CC, E_NOTICE, "input is empty");
+        php_error_docref(NULL , E_NOTICE, "input is empty");
         return;
     }
   
@@ -332,14 +375,14 @@ PHP_FUNCTION(trie_filter_search_all)
 
     AlphaChar *alpha_text;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs",
+    if (zend_parse_parameters(ZEND_NUM_ARGS() , "rs",
                 &trie_resource, &text, &text_len) == FAILURE) {
         RETURN_FALSE;
     }
 
     array_init(return_value);
     if (text_len < 1 || strlen(text) != text_len) {
-        php_error_docref(NULL TSRMLS_CC, E_NOTICE, "input is empty");
+        php_error_docref(NULL , E_NOTICE, "input is empty");
         return;
     }
 
@@ -420,13 +463,13 @@ PHP_FUNCTION(trie_filter_store)
 #endif
     AlphaChar alpha_key[KEYWORD_MAX_LEN+1];
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs",
+	if (zend_parse_parameters(ZEND_NUM_ARGS() , "rs",
 				&trie_resource, &keyword, &keyword_len) == FAILURE) {
 		RETURN_FALSE;
 	}
   
     if (keyword_len > KEYWORD_MAX_LEN || keyword_len < 1) {
-        php_error_docref(NULL TSRMLS_CC, E_WARNING, "keyword should has [1, %d] bytes", KEYWORD_MAX_LEN);
+        php_error_docref(NULL , E_WARNING, "keyword should has [1, %d] bytes", KEYWORD_MAX_LEN);
         RETURN_FALSE;
     }
 
@@ -466,12 +509,12 @@ PHP_FUNCTION(trie_filter_delete)
     int i;
     AlphaChar alpha_key[KEYWORD_MAX_LEN+1];
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs",
+    if (zend_parse_parameters(ZEND_NUM_ARGS() , "rs",
                 &trie_resource, &keyword, &keyword_len) == FAILURE) {
         RETURN_FALSE;
     }
     if (keyword_len > KEYWORD_MAX_LEN || keyword_len < 1) {
-        php_error_docref(NULL TSRMLS_CC, E_WARNING, "keyword should has [1, %d] bytes", KEYWORD_MAX_LEN);
+        php_error_docref(NULL , E_WARNING, "keyword should has [1, %d] bytes", KEYWORD_MAX_LEN);
         RETURN_FALSE;
     }
 
@@ -508,12 +551,12 @@ PHP_FUNCTION(trie_filter_save)
     size_t filename_len;
 #endif
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "rs",
+    if (zend_parse_parameters(ZEND_NUM_ARGS() , "rs",
                 &trie_resource, &filename, &filename_len) == FAILURE) {
         RETURN_FALSE;
     }
     if (filename_len < 1) {
-        php_error_docref(NULL TSRMLS_CC, E_WARNING, "save path required");
+        php_error_docref(NULL , E_WARNING, "save path required");
         RETURN_FALSE;
     }
 
@@ -545,7 +588,7 @@ PHP_FUNCTION(trie_filter_write)
     char *p;
     zend_size_t plen;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &trie_resource) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() , "r", &trie_resource) == FAILURE) {
         RETURN_FALSE;
     }
 
@@ -579,7 +622,7 @@ PHP_FUNCTION(trie_filter_free)
 #endif
 
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "r", &trie_resource) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() , "r", &trie_resource) == FAILURE) {
         RETURN_FALSE;
     }
 
@@ -597,10 +640,15 @@ PHP_FUNCTION(trie_filter_free)
 #if PHP_MAJOR_VERSION < 7
     if (zend_list_delete(resource_id) == SUCCESS) {
 #else
-	if (zend_list_close(Z_RES_P(trie_resource)) == SUCCESS) {
+	//if (zend_list_close(Z_RES_P(trie_resource)) == SUCCESS) {
+	if (Z_RES_P(trie_resource) != NULL) {
+        	zend_list_close(Z_RES_P(trie_resource));  
+		// 如果需要，将 trie_resource 设置为 NULL  
+		 ZVAL_NULL(trie_resource); // 假设 trie_resource 是一个 zval* 类型的指针
 #endif
         RETURN_TRUE;
     }
+
     RETURN_FALSE;
 }
 /* }}} */
